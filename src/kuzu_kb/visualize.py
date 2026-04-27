@@ -197,7 +197,7 @@ def generate_html(db_path: str | Path, output: str | Path = "knowledge_graph.htm
     )
 
     output = Path(output)
-    output.write_text(html)
+    output.write_text(html, encoding="utf-8")
     return str(output.resolve())
 
 

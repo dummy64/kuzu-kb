@@ -207,7 +207,7 @@ def ingest_directory(directory: str | Path, db_path: str | Path = "./kuzu_db") -
             continue
 
         try:
-            text = fpath.read_text(errors="replace")
+            text = fpath.read_text(encoding="utf-8", errors="replace")
         except Exception:
             continue
 
