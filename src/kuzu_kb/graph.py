@@ -76,8 +76,8 @@ class KuzuGraph:
     def search_entities(self, query: str, limit: int = 20) -> list[dict]:
         if query:
             result = self._execute(
-                "MATCH (e:Entity) WHERE e.name CONTAINS $q RETURN e.name, e.entity_type LIMIT $lim",
-                {"q": query, "lim": limit},
+                "MATCH (e:Entity) WHERE lower(e.name) CONTAINS $q RETURN e.name, e.entity_type LIMIT $lim",
+                {"q": query.lower(), "lim": limit},
             )
         else:
             result = self._execute("MATCH (e:Entity) RETURN e.name, e.entity_type LIMIT $lim", {"lim": limit})
@@ -86,8 +86,8 @@ class KuzuGraph:
     def search_chunks(self, query: str, limit: int = 10) -> list[dict]:
         if query:
             result = self._execute(
-                "MATCH (c:Chunk) WHERE c.text CONTAINS $q RETURN c.id, c.text, c.doc_path LIMIT $lim",
-                {"q": query, "lim": limit},
+                "MATCH (c:Chunk) WHERE lower(c.text) CONTAINS $q RETURN c.id, c.text, c.doc_path LIMIT $lim",
+                {"q": query.lower(), "lim": limit},
             )
         else:
             result = self._execute("MATCH (c:Chunk) RETURN c.id, c.text, c.doc_path LIMIT $lim", {"lim": limit})
@@ -96,12 +96,12 @@ class KuzuGraph:
     def get_entity_context(self, entity_name: str) -> dict:
         """Get an entity with its relationships and mentions."""
         rels = self._rows(self._execute(
-            "MATCH (a:Entity {name: $n})-[r:RELATES_TO]->(b:Entity) RETURN b.name, r.relation",
-            {"n": entity_name},
+            "MATCH (a:Entity)-[r:RELATES_TO]->(b:Entity) WHERE lower(a.name) = $n RETURN b.name, r.relation",
+            {"n": entity_name.lower()},
         ))
         mentions = self._rows(self._execute(
-            "MATCH (c:Chunk)-[:MENTIONS]->(e:Entity {name: $n}) RETURN c.text, c.doc_path LIMIT 5",
-            {"n": entity_name},
+            "MATCH (c:Chunk)-[:MENTIONS]->(e:Entity) WHERE lower(e.name) = $n RETURN c.text, c.doc_path LIMIT 5",
+            {"n": entity_name.lower()},
         ))
         return {
             "entity": entity_name,
@@ -111,9 +111,9 @@ class KuzuGraph:
 
     def get_neighbors(self, entity_name: str, hops: int = 2) -> list[dict]:
         result = self._execute(
-            f"MATCH (a:Entity {{name: $n}})-[r:RELATES_TO*1..{hops}]->(b:Entity) "
+            f"MATCH (a:Entity)-[r:RELATES_TO*1..{hops}]->(b:Entity) WHERE lower(a.name) = $n "
             "RETURN DISTINCT b.name, b.entity_type",
-            {"n": entity_name},
+            {"n": entity_name.lower()},
         )
         return [{"name": r[0], "type": r[1]} for r in self._rows(result)]
 
