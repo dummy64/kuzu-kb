@@ -17,7 +17,12 @@ cd kuzu-kb
 
 # Create a virtual environment
 python3 -m venv .venv
+
+# Activate it
+# Linux/macOS:
 source .venv/bin/activate
+# Windows CMD:    .venv\Scripts\activate.bat
+# Windows PS:     .venv\Scripts\Activate.ps1
 
 # Install
 pip install -e .
@@ -94,9 +99,21 @@ This is also available as an MCP tool (`visualize`) so an AI assistant can gener
 
 ### Running standalone
 
+**Linux / macOS:**
 ```bash
-# Set the database path and run
 KUZU_DB_PATH=./my_kb kuzu-kb-server
+```
+
+**Windows (CMD):**
+```cmd
+set KUZU_DB_PATH=.\my_kb
+kuzu-kb-server
+```
+
+**Windows (PowerShell):**
+```powershell
+$env:KUZU_DB_PATH = ".\my_kb"
+kuzu-kb-server
 ```
 
 ### Adding to an MCP client
